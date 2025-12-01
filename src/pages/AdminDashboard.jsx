@@ -9,7 +9,7 @@ import {
   Download,
 } from 'lucide-react';
 
-export default function AdminDashboard({ dateRange, setDateRange, onDownload }) {
+export default function AdminDashboard({ dateRange, setDateRange, onDownload, onGoToHome }) {
   const [activeTab, setActiveTab] = useState('data');
 
   const tabs = [
@@ -206,16 +206,31 @@ export default function AdminDashboard({ dateRange, setDateRange, onDownload }) 
         </div>
       </aside>
 
-      <main className="flex-1 md:ml-64 p-8">
-        <header className="mb-8 flex justify-between items-center">
-          <h1 className="text-2xl font-extrabold text-slate-800">
-            관리자 대시보드
-          </h1>
-          <div className="text-sm text-slate-500">Admin 님, 환영합니다.</div>
-        </header>
+     <main className="flex-1 md:ml-64 p-8">
+  <header className="mb-8 flex justify-between items-center">
+    <h1 className="text-2xl font-extrabold text-slate-800">
+      관리자 대시보드
+    </h1>
+    <div className="flex items-center gap-3 text-sm">
+      <button
+        onClick={onGoToHome}
+        className="px-3 py-1.5 rounded-lg border border-slate-200 
+                   bg-white text-slate-600 hover:bg-blue-50 
+                   hover:border-blue-400 hover:text-blue-600 
+                   transition-colors"
+      >
+        사용자 화면으로 보기
+      </button>
+      <span className="text-slate-500">
+        Admin 님, 환영합니다.
+      </span>
+    </div>
+  </header>
 
-        <div className="animate-fade-in">{renderContent()}</div>
-      </main>
+  <div className="animate-fade-in">
+    {renderContent()}
+  </div>
+</main>
     </div>
   );
 }

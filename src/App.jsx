@@ -276,13 +276,13 @@ const handleAnalyze = () => {
       )}
 
       {currentPage === 'adminDashboard' && (
-        <AdminDashboard
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-          onDownload={handleDownload}
-        />
-      )}
-
+  <AdminDashboard
+    dateRange={dateRange}
+    setDateRange={setDateRange}
+    onDownload={handleDownload}
+    onGoToHome={() => navigateTo('home')}   // ✅ 이 줄 추가
+  />
+)}
       <InfoModal open={showInfoModal} onClose={() => setShowInfoModal(false)} />
       <ToastNotification
         toast={toast}
