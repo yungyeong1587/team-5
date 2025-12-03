@@ -17,7 +17,7 @@ from config import ALLOWED_ORIGINS
 from routers import admin
 from routers import notice
 from routers import inquiry
-# from routers import review  # 추가 예정
+from routers import review
 
 # 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)
@@ -47,7 +47,7 @@ app.add_middleware(
 app.include_router(admin.router, prefix="/admin", tags=["관리자"])
 app.include_router(notice.router, tags=["공지사항"])
 app.include_router(inquiry.router, tags=["문의"])
-# app.include_router(review.router, prefix="/review", tags=["리뷰 분석"])
+app.include_router(review.router, prefix="/review", tags=["리뷰 분석"])
 
 
 @app.on_event("startup")

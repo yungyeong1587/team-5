@@ -1,5 +1,6 @@
 // src/pages/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
+import DataManage from './DataManage';
 import {
   MessageSquare,
   FileText,
@@ -390,69 +391,8 @@ export default function AdminDashboard({
         );
 
       case "data":
-        return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-800 mb-4">
-              데이터 추출 및 관리
-            </h3>
-
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <Calendar className="text-blue-600" size={20} />
-                <span className="font-bold text-slate-700">날짜 구간 설정</span>
-              </div>
-              <div className="flex flex-col md:flex-row gap-4 items-end md:items-center">
-                <div className="flex-1 w-full">
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">
-                    시작일
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:border-blue-500 outline-none"
-                    value={dateRange.start}
-                    onChange={(e) =>
-                      setDateRange({ ...dateRange, start: e.target.value })
-                    }
-                  />
-                </div>
-                <span className="text-slate-400 hidden md:block">~</span>
-                <div className="flex-1 w-full">
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">
-                    종료일
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:border-blue-500 outline-none"
-                    value={dateRange.end}
-                    onChange={(e) =>
-                      setDateRange({ ...dateRange, end: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:border-blue-200 transition-colors">
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="font-bold text-slate-700 text-lg mb-1">
-                    리뷰 분석 데이터 로그
-                  </div>
-                  <p className="text-sm text-slate-500">
-                    선택한 기간 내의 URL별 신뢰도 분석 결과 기록 (.csv)
-                  </p>
-                </div>
-                <button
-                  onClick={onDownload}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold shadow-md transition-all transform active:scale-95"
-                >
-                  <Download size={18} /> 데이터 다운로드
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-
+        return <DataManage />;
+        
       case "aimodel":
         return (
           <div className="space-y-6">
