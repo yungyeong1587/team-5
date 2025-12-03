@@ -1,30 +1,22 @@
 // src/components/feedback/ToastNotification.jsx
-import React from 'react';
-import { Info, ThumbsUp, X } from 'lucide-react';
+import React from "react";
+import { X } from "lucide-react";
 
 export default function ToastNotification({ toast, onClose }) {
   if (!toast?.show) return null;
 
-  let classes = '';
-  let Icon = Info;
-  let iconColor = '';
+  let classes = "";
 
   switch (toast.type) {
-    case 'success':
-      classes = 'bg-green-600 border-green-700';
-      Icon = ThumbsUp;
-      iconColor = 'text-green-100';
+    case "success":
+      classes = "bg-green-600 border-green-700";
       break;
-    case 'error':
-      classes = 'bg-red-600 border-red-700';
-      Icon = X;
-      iconColor = 'text-red-100';
+    case "error":
+      classes = "bg-red-600 border-red-700";
       break;
-    case 'info':
+    case "info":
     default:
-      classes = 'bg-blue-600 border-blue-700';
-      Icon = Info;
-      iconColor = 'text-blue-100';
+      classes = "bg-blue-600 border-blue-700";
       break;
   }
 
@@ -33,8 +25,12 @@ export default function ToastNotification({ toast, onClose }) {
       <div
         className={`p-4 rounded-xl shadow-2xl border transition-all duration-300 flex items-center gap-3 ${classes} pointer-events-auto animate-toast-in`}
       >
-        <Icon size={20} className={iconColor} />
-        <span className="text-white font-medium text-sm">{toast.message}</span>
+        {/* 아이콘 제거됨 */}
+        <span className="text-white font-medium text-sm">
+          {toast.message}
+        </span>
+
+        {/* 닫기 버튼 유지 */}
         <button
           onClick={onClose}
           className="text-white/70 hover:text-white ml-2"

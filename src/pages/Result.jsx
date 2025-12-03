@@ -1,112 +1,55 @@
 // src/pages/Result.jsx
 import React from "react";
-import { Info, ThumbsUp, ThumbsDown, BadgeCheck } from "lucide-react";
+import { Info, ThumbsUp, ThumbsDown } from "lucide-react";
 import ReviewCheckIcon from "../components/icons/ReviewCheckIcon";
 
+// 점수에 따라 색 / 라벨 결정
 function getScoreInfo(score) {
   if (score >= 76)
     return {
       color: "text-green-600",
-      bg: "bg-green-100",
+      bg: "bg-green-50",
       border: "border-green-500",
       label: "매우 도움됨",
     };
+
   if (score >= 36)
     return {
       color: "text-orange-500",
-      bg: "bg-orange-100",
+      bg: "bg-orange-50",
       border: "border-orange-400",
-      label: "일부 도움됨",
+      label: "부분적으로 도움됨",
     };
+
   return {
     color: "text-red-500",
-    bg: "bg-red-100",
-    border: "border-red-500",
+    bg: "bg-red-50",
+    border: "border-red-400",
     label: "도움 안 됨",
   };
 }
 
-/**
- * 문장 안에서 positive / negative 구간을
- * 파란/빨간 형광펜 느낌으로 하이라이트
- */
 function HighlightedReview({ content, highlight }) {
-  if (!highlight) return <span>{content}</span>;
+  if (!highlight || !content) return <>{content}</>;
+  const idx = content.indexOf(highlight);
+  if (idx === -1) return <>{content}</>;
 
-  const { positive = [], negative = [] } = highlight;
+  return (
+    <>
+      {content.slice(0, idx)}
+      <span className="bg-yellow-100 text-red-500 font-semibold">
+        {highlight}
+      </span>
+      {content.slice(idx + highlight.length)}
+    </>
+  );
+}
 
-  let result = content;
-
-  // 부정 → 긍정 순서로 마킹
-  negative.forEach((phrase) => {
-    if (!phrase) return;
-    result = result.replaceAll(
-      phrase,
-      `[[NEG_START]]${phrase}[[NEG_END]]`
-    );
-  });
-
-  positive.forEach((phrase) => {
-    if (!phrase) return;
-    result = result.replaceAll(
-      phrase,
-      `[[POS_START]]${phrase}[[POS_END]]`
-    );
-  });
-
-  const parts = result
-    .split(
-      /(\[\[POS_START\]\]|\[\[POS_END\]\]|\[\[NEG_START\]\]|\[\[NEG_END\]\])/
-    )
-    .filter(Boolean);
-
-  let mode = "normal";
-  const tokens = [];
-
-  parts.forEach((part, idx) => {
-    if (part === "[[POS_START]]") {
-      mode = "pos";
-      return;
-    }
-    if (part === "[[POS_END]]") {
-      mode = "normal";
-      return;
-    }
-    if (part === "[[NEG_START]]") {
-      mode = "neg";
-      return;
-    }
-    if (part === "[[NEG_END]]") {
-      mode = "normal";
-      return;
-    }
-
-    if (mode === "pos") {
-      // 파란 형광펜
-      tokens.push(
-        <span
-          key={idx}
-          className="bg-blue-100 text-blue-700 font-semibold rounded-sm px-0.5"
-        >
-          {part}
-        </span>
-      );
-    } else if (mode === "neg") {
-      // 빨간 형광펜
-      tokens.push(
-        <span
-          key={idx}
-          className="bg-red-100 text-red-600 font-semibold rounded-sm px-0.5"
-        >
-          {part}
-        </span>
-      );
-    } else {
-      tokens.push(<span key={idx}>{part}</span>);
-    }
-  });
-
-  return <>{tokens}</>;
+function parseTrust(value) {
+  if (typeof value === "number") return value;
+  if (!value) return 0;
+  const num = parseFloat(String(value).replace("%", ""));
+  return Number.isNaN(num) ? 0 : num;
 }
 
 export default function Result({
@@ -117,140 +60,178 @@ export default function Result({
 }) {
   if (!analysisResult) return null;
 
-  const { score, overallSummary, reviews = [] } = analysisResult;
-  const { color, bg, border, label } = {
-    ...analysisResult,
-    ...getScoreInfo(score),
-  };
+  const { score = 0, overallSummary, reviews = [] } = analysisResult;
+  const { color, bg, border, label } = getScoreInfo(score);
+
+  const highReviews = [...reviews]
+    .sort((a, b) => parseTrust(b.trust) - parseTrust(a.trust))
+    .slice(0, 10);
+
+  const lowReviews = [...reviews]
+    .sort((a, b) => parseTrust(a.trust) - parseTrust(b.trust))
+    .slice(0, 10);
 
   return (
-    <div className="flex flex-col items-center min-h-screen px-4 pt-28 pb-12 bg-slate-50">
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden animate-fade-in">
-        {/* 헤더 */}
-        <div className="bg-slate-50 px-8 py-6 border-b border-slate-100 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-slate-800">
-              분석 결과 리포트
-            </h2>
+    <div className="min-h-screen bg-slate-50 flex justify-center px-4 py-8">
+      <div className="w-full max-w-6xl pt-8 md:pt-10 lg:pt-12">
+        <div className="bg-white rounded-3xl shadow-xl border border-slate-100">
+          {/* 헤더 */}
+          <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-slate-50/60">
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-slate-800">
+                분석 결과 리포트
+              </h2>
+              <button
+                onClick={onOpenInfoModal}
+                className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-600"
+              >
+                <Info size={16} />
+                <span>신뢰도 기준</span>
+              </button>
+            </div>
+
             <button
-              onClick={onOpenInfoModal}
-              className="text-slate-400 hover:text-blue-600 transition-colors"
-              title="신뢰도 점수 기준 보기"
+              onClick={onNewAnalyze}
+              className="text-sm px-4 py-2 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
             >
-              <Info size={18} />
+              새로운 분석하기
             </button>
           </div>
-          <button
-            onClick={onNewAnalyze}
-            className="text-blue-600 text-sm font-semibold hover:underline"
-          >
-            새로운 분석하기
-          </button>
-        </div>
 
-        {/* URL 표시 */}
-        <div className="px-8 py-2 bg-slate-50/50 border-b border-slate-100 text-slate-500 text-sm truncate">
-          {urlInput}
-        </div>
-
-        <div className="p-8">
-          {/* 상단 그리드 (점수 + 리뷰 테이블) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* 왼쪽: 점수 영역 */}
-            <div className="lg:col-span-1 flex flex-col items-center justify-center space-y-6">
-              <div
-                className={`w-48 h-48 rounded-full flex items-center justify-center border-8 ${border} ${bg} transition-all duration-500`}
-              >
-                <div className="text-center">
-                  <span className={`text-5xl font-extrabold ${color}`}>
-                    {score}
-                  </span>
-                  <span className="text-slate-400 text-lg">/100</span>
-                </div>
-              </div>
-
-              <div
-                className={`px-4 py-2 rounded-full font-bold text-lg ${bg} ${color}`}
-              >
-                {label}
-              </div>
-            </div>
-
-            {/* 오른쪽: 리뷰 상세 분석 테이블 */}
-            <div className="lg:col-span-2">
-              <h3 className="font-bold text-slate-700 mb-4">
-                리뷰 상세 분석 (샘플 10개)
-              </h3>
-
-              <div className="border border-slate-100 rounded-2xl overflow-hidden">
-                {/* 테이블 헤더 */}
-                <div className="grid grid-cols-12 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">
-                  <div className="col-span-7">리뷰 내용</div>
-                  <div className="col-span-2 text-center">신뢰도</div>
-                  <div className="col-span-3 text-center">분석 근거</div>
-                </div>
-
-                {/* 스크롤 되는 바디 (5개 정도 보이고, 더 있으면 스크롤) */}
-                <div className="max-h-80 overflow-y-auto">
-                  {reviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="grid grid-cols-12 px-4 py-3 text-sm border-t border-slate-100 hover:bg-slate-50 transition-colors"
-                    >
-                      <div className="col-span-7 pr-3 leading-relaxed text-slate-700">
-                        <HighlightedReview
-                          content={review.content}
-                          highlight={review.highlight}
-                        />
-                      </div>
-                      <div className="col-span-2 flex items-center justify-center font-semibold text-slate-800">
-                        {review.trust}
-                      </div>
-                      <div className="col-span-3 flex items-center justify-center text-xs text-slate-500 text-center px-2">
-                        {review.reason}
-                      </div>
-                    </div>
-                  ))}
-
-                  {reviews.length === 0 && (
-                    <div className="px-4 py-6 text-center text-slate-400 text-sm">
-                      표시할 리뷰가 없습니다.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+          {/* URL */}
+          <div className="px-8 py-2 bg-slate-50/50 border-b border-slate-100 text-slate-500 text-sm truncate">
+            {urlInput}
           </div>
 
-          {/* 전체 리뷰 요약 – 점수 밑(왼쪽 아래)에 오는 느낌으로, 카드 한 줄 */}
-          {overallSummary && (
-  <div className="mt-8 flex items-start gap-3 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4">
-    <div className="mt-0.5">
-  <ReviewCheckIcon className="w-5 h-5 text-blue-500" />
-</div>
-    <div className="text-sm leading-relaxed text-slate-700">
-      <div className="font-semibold text-slate-800 mb-1">
-        전체 리뷰 요약
-      </div>
-      <div>{overallSummary}</div>
-    </div>
-  </div>
-)}
+          <div className="p-8">
+            {/* ⭐ 종합 리뷰 지표 중앙 배치 (디자인 개선 버전) */}
+            <div className="flex justify-center mb-12">
+              <div
+                className={`w-72 h-72 rounded-full border-[14px] flex flex-col items-center justify-center ${border} ${bg} shadow-[0_0_25px_rgba(249,115,22,0.25)]`}
+              >
+                <span className="text-sm text-slate-500 mb-1 tracking-wide">
+                  종합 리뷰 지표
+                </span>
 
-          {/* 도움 됐나요? 영역 */}
-          <div className="mt-10 border-t border-slate-100 pt-6">
-            <p className="text-center text-slate-500 text-sm mb-4">
-              이 분석 결과가 도움이 되셨나요?
-            </p>
-            <div className="flex justify-center gap-4">
-              <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all shadow-sm">
-                <ThumbsUp size={18} />
-                <span>네, 도움됨</span>
-              </button>
-              <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:border-red-500 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm">
-                <ThumbsDown size={18} />
-                <span>아니요</span>
-              </button>
+                <div className="flex items-baseline">
+                  <span
+                    className={`mr-2 text-7xl font-extrabold ${color}`}
+                  >
+                    {score}
+                  </span>
+                  <span className="text-2xl text-slate-500">/100</span>
+                </div>
+
+                <span className={`mt-3 text-xl font-semibold ${color}`}>
+                  {label}
+                </span>
+              </div>
+            </div>
+
+            {/* ⭐ 리뷰 테이블 2단 레이아웃 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {/* 높은 평점 */}
+              <div>
+                <h3 className="font-bold text-lg text-slate-700 mb-4 border-b border-slate-200 pb-2">
+                  높은 평점 TOP 10
+                </h3>
+                <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                  <div className="grid grid-cols-12 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">
+                    <div className="col-span-7">리뷰 내용</div>
+                    <div className="col-span-2 text-center">평점</div>
+                    <div className="col-span-3 text-center">분석 근거</div>
+                  </div>
+
+                  <div className="max-h-72 overflow-y-auto">
+                    {highReviews.map((review) => (
+                      <div
+                        key={review.id || review.content}
+                        className="grid grid-cols-12 px-4 py-3 text-sm border-t border-slate-100 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="col-span-7 pr-3 leading-relaxed text-slate-700">
+                          <HighlightedReview
+                            content={review.content}
+                            highlight={review.highlight}
+                          />
+                        </div>
+                        <div className="col-span-2 flex items-center justify-center font-semibold text-slate-800">
+                          {review.rating}
+                        </div>
+                        <div className="col-span-3 flex items-center justify-center text-xs text-slate-500 text-center px-2">
+                          {review.reason}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* 낮은 평점 */}
+              <div>
+                <h3 className="font-bold text-lg text-slate-700 mb-4 border-b border-slate-200 pb-2">
+                  낮은 평점 TOP 10
+                </h3>
+                <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                  <div className="grid grid-cols-12 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">
+                    <div className="col-span-7">리뷰 내용</div>
+                    <div className="col-span-2 text-center">평점</div>
+                    <div className="col-span-3 text-center">분석 근거</div>
+                  </div>
+
+                  <div className="max-h-72 overflow-y-auto">
+                    {lowReviews.map((review) => (
+                      <div
+                        key={review.id || review.content}
+                        className="grid grid-cols-12 px-4 py-3 text-sm border-t border-slate-100 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="col-span-7 pr-3 leading-relaxed text-slate-700">
+                          <HighlightedReview
+                            content={review.content}
+                            highlight={review.highlight}
+                          />
+                        </div>
+                        <div className="col-span-2 flex items-center justify-center font-semibold text-slate-800">
+                          {review.rating}
+                        </div>
+                        <div className="col-span-3 flex items-center justify-center text-xs text-slate-500 text-center px-2">
+                          {review.reason}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 전체 리뷰 요약 */}
+            <div className="mt-12 border-t border-slate-100 pt-6">
+              <div className="flex items-center gap-2 text-slate-700 mb-3">
+                <ReviewCheckIcon className="w-6 h-6 text-blue-600" />
+                <span className="text-base font-semibold">전체 리뷰 요약</span>
+              </div>
+
+              <p className="text-base leading-relaxed text-slate-700 bg-slate-50 rounded-2xl px-4 py-4 border border-slate-100">
+                {overallSummary}
+              </p>
+            </div>
+
+            {/* 도움 여부 */}
+            <div className="mt-8 border-t border-slate-100 pt-6">
+              <p className="text-base text-slate-600 mb-3">
+                이 분석 결과가 도움이 되었나요?
+              </p>
+
+              <div className="flex flex-wrap gap-3">
+                <button className="flex items-center gap-2 px-6 py-3 text-base rounded-full border border-slate-200 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm">
+                  <ThumbsUp size={20} />
+                  <span>네, 도움됨</span>
+                </button>
+
+                <button className="flex items-center gap-2 px-6 py-3 text-base rounded-full border border-slate-200 text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm">
+                  <ThumbsDown size={20} />
+                  <span>아니요</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
