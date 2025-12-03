@@ -136,7 +136,7 @@ def admin_dashboard(current_admin: Admin = Depends(get_current_admin)):
 
 
 # --------------------------------------------------------------------------
-# 2. 데이터 분석 및 통계 관리 (새로 추가됨)
+# 2. 데이터 분석 및 통계 관리
 # --------------------------------------------------------------------------
 
 # --- 데이터 관리 기능 추가 ---
@@ -185,12 +185,12 @@ def download_analysis_csv(
         # 3. CSV 생성 (메모리)
         stream = io.StringIO()
         
-        # ★★★ 핵심: 엑셀 한글 깨짐 방지 (BOM 문자 추가) ★★★
+        # 엑셀 한글 깨짐 방지 (BOM 문자 추가)
         stream.write('\ufeff')
 
         csv_writer = csv.writer(stream)
 
-        # 4. 헤더 작성 (여기가 씹히지 않게 됨)
+        # 4. 헤더 작성
         csv_writer.writerow(["ID", "URL", "신뢰도 점수", "분석일시"])
 
         # 5. 데이터 작성

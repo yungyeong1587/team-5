@@ -52,15 +52,28 @@ const DataManage = () => {
 
   return (
     <div className="p-6"> 
-      {/* (기존 UI 코드들...) */}
-      
-      {/* ⚠️ [4] 통계 숫자 보여주는 부분 찾아서 수정 */}
-      {/* "누적 분석 데이터 로그" 같은 텍스트 근처에 있을 겁니다 */}
-      {/* 예시: <span>{stats.total_count} 건</span> */}
 
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h3 className="font-bold text-lg mb-4">데이터 추출 및 관리</h3>
         
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        {/* 1. 누적 분석 수 카드 */}
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <p className="text-sm font-semibold text-slate-500 mb-1">총 누적 분석 수</p>
+          <div className="text-3xl font-extrabold text-slate-800">
+            {stats.total_count} <span className="text-lg font-bold text-blue-600">건</span>
+          </div>
+        </div>
+        
+        {/* 2. 금일 분석 요청 카드 */}
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <p className="text-sm font-semibold text-slate-500 mb-1">금일 분석 요청</p>
+          <div className="text-3xl font-extrabold text-blue-600">
+            {stats.today_count} <span className="text-lg font-bold text-slate-800">건</span>
+          </div>
+        </div>
+      </div>
+      
         {/* 날짜 입력 구간 */}
         <div className="flex gap-4 items-center mb-6">
            {/* 시작일 input 찾아서 value랑 onChange 연결 */}
