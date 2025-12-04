@@ -63,9 +63,9 @@ coverage.xml
 .python-version
 
 # dotenv
-#.env
-#.env.*
-#*.env
+.env
+.env.*
+*.env
 
 # mypy
 .mypy_cache/
@@ -105,7 +105,7 @@ pnpm-debug.log*
 coverage/
 
 # dotenv
-#.env
+.env
 .env.local
 .env.development.local
 .env.test.local
