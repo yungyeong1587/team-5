@@ -64,8 +64,8 @@ coverage.xml
 
 # dotenv
 #.env
-.env.*
-*.env
+#.env.*
+#*.env
 
 # mypy
 .mypy_cache/
