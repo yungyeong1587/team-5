@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 from datetime import datetime
 
 # ===== 관리자 인증 스키마 =====
@@ -191,3 +191,26 @@ class InquiryReplyActionResponse(BaseModel):
     result_code: int  # 200: 성공, 404: 없음, 600: 오류
     message: str
     inquiry: Optional[InquiryDetailData] = None
+
+class AnalysisCreate(BaseModel):
+    """분석 요청"""
+    review_url: str
+
+class AnalysisResponse(BaseModel):
+    """분석 응답"""
+    analysis_id: int
+    review_url: str
+    status: str
+    verdict: Optional[str] = None
+    confidence: Optional[float] = None
+    error_message: Optional[str] = None
+    review_count: Optional[int] = None
+    
+    top_reviews: Optional[List[Dict[str, Any]]] = [] 
+    worst_reviews: Optional[List[Dict[str, Any]]] = []
+    
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

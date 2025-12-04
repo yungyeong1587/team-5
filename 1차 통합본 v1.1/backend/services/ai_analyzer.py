@@ -15,6 +15,7 @@ import json
 import argparse
 from pathlib import Path
 import logging
+import io
 
 # 🔥 subprocess에서 실행되므로 자체 로깅 설정 필요!
 logging.basicConfig(
@@ -23,7 +24,8 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stderr)]
 )
 sys.stderr.flush()
-
+sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 logger = logging.getLogger(__name__)
 
 

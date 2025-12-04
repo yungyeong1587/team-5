@@ -12,6 +12,11 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)],
     force=True
 )
+from dotenv import load_dotenv
+load_dotenv()  # .env 파일 로드
+import os
+
+print(f"[STARTUP] GEMINI_API_KEY 로드 확인: {'설정됨' if os.getenv('GEMINI_API_KEY') else '없음'}")
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

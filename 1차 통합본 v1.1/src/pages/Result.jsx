@@ -29,6 +29,7 @@ function getScoreInfo(score) {
   };
 }
 
+// 하이라이트 처리 컴포넌트
 function HighlightedReview({ content, highlight }) {
   if (!highlight || !content) return <>{content}</>;
   const idx = content.indexOf(highlight);
@@ -45,13 +46,6 @@ function HighlightedReview({ content, highlight }) {
   );
 }
 
-function parseTrust(value) {
-  if (typeof value === "number") return value;
-  if (!value) return 0;
-  const num = parseFloat(String(value).replace("%", ""));
-  return Number.isNaN(num) ? 0 : num;
-}
-
 export default function Result({
   analysisResult,
   urlInput,
@@ -60,16 +54,39 @@ export default function Result({
 }) {
   if (!analysisResult) return null;
 
-  const { score = 0, overallSummary, reviews = [] } = analysisResult;
+  // 🔍 [디버깅용] 브라우저 콘솔(F12)에 실제 들어온 데이터를 찍어봅니다.
+  console.log("실제 받은 데이터:", analysisResult);
+
+  // 1. 데이터 추출 (방어 로직 강화)
+  // 백엔드가 top_reviews로 보낼 수도 있고, 자동 변환되어 topReviews로 올 수도 있음
+  const topList = analysisResult.top_reviews || analysisResult.topReviews || [];
+  const worstList = analysisResult.worst_reviews || analysisResult.worstReviews || [];
+  
+  const { 
+    score = 0, 
+    overallSummary 
+  } = analysisResult;
+  
   const { color, bg, border, label } = getScoreInfo(score);
 
-  const highReviews = [...reviews]
-    .sort((a, b) => parseTrust(b.trust) - parseTrust(a.trust))
-    .slice(0, 10);
+  // 2. 포맷 변환 함수 (강력한 방어 로직)
+  const formatReviews = (list) => {
+    if (!list || list.length === 0) return [];
+    
+    return list.map((r, index) => ({
+      id: r.id || `review-${index}-${Math.random()}`,
+      // content가 없으면 text를 찾고, 그것도 없으면 "내용 없음" 표시
+      content: r.content || r.text || "내용을 불러올 수 없습니다.", 
+      rating: r.rating,
+      reason: r.reason || `사용자 평점 ${r.rating}점`,
+      highlight: r.highlight || ""
+    }));
+  };
 
-  const lowReviews = [...reviews]
-    .sort((a, b) => parseTrust(a.trust) - parseTrust(b.trust))
-    .slice(0, 10);
+  // 3. 변환 실행
+  const highReviews = formatReviews(topList);
+  const lowReviews = formatReviews(worstList);
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex justify-center px-4 py-8">
@@ -104,7 +121,7 @@ export default function Result({
           </div>
 
           <div className="p-8">
-            {/* ⭐ 종합 리뷰 지표 중앙 배치 (디자인 개선 버전) */}
+            {/* ⭐ 종합 리뷰 지표 중앙 배치 */}
             <div className="flex justify-center mb-12">
               <div
                 className={`w-72 h-72 rounded-full border-[14px] flex flex-col items-center justify-center ${border} ${bg} shadow-[0_0_25px_rgba(249,115,22,0.25)]`}
@@ -143,25 +160,31 @@ export default function Result({
                   </div>
 
                   <div className="max-h-72 overflow-y-auto">
-                    {highReviews.map((review) => (
-                      <div
-                        key={review.id || review.content}
-                        className="grid grid-cols-12 px-4 py-3 text-sm border-t border-slate-100 hover:bg-slate-50 transition-colors"
-                      >
-                        <div className="col-span-7 pr-3 leading-relaxed text-slate-700">
-                          <HighlightedReview
-                            content={review.content}
-                            highlight={review.highlight}
-                          />
+                    {highReviews.length > 0 ? (
+                      highReviews.map((review) => (
+                        <div
+                          key={review.id}
+                          className="grid grid-cols-12 px-4 py-3 text-sm border-t border-slate-100 hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="col-span-7 pr-3 leading-relaxed text-slate-700">
+                            <HighlightedReview
+                              content={review.content}
+                              highlight={review.highlight}
+                            />
+                          </div>
+                          <div className="col-span-2 flex items-center justify-center font-semibold text-slate-800">
+                            {review.rating}
+                          </div>
+                          <div className="col-span-3 flex items-center justify-center text-xs text-slate-500 text-center px-2">
+                            {review.reason}
+                          </div>
                         </div>
-                        <div className="col-span-2 flex items-center justify-center font-semibold text-slate-800">
-                          {review.rating}
-                        </div>
-                        <div className="col-span-3 flex items-center justify-center text-xs text-slate-500 text-center px-2">
-                          {review.reason}
-                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-slate-400 text-sm">
+                        해당하는 리뷰가 없습니다.
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -179,25 +202,31 @@ export default function Result({
                   </div>
 
                   <div className="max-h-72 overflow-y-auto">
-                    {lowReviews.map((review) => (
-                      <div
-                        key={review.id || review.content}
-                        className="grid grid-cols-12 px-4 py-3 text-sm border-t border-slate-100 hover:bg-slate-50 transition-colors"
-                      >
-                        <div className="col-span-7 pr-3 leading-relaxed text-slate-700">
-                          <HighlightedReview
-                            content={review.content}
-                            highlight={review.highlight}
-                          />
+                    {lowReviews.length > 0 ? (
+                      lowReviews.map((review) => (
+                        <div
+                          key={review.id}
+                          className="grid grid-cols-12 px-4 py-3 text-sm border-t border-slate-100 hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="col-span-7 pr-3 leading-relaxed text-slate-700">
+                            <HighlightedReview
+                              content={review.content}
+                              highlight={review.highlight}
+                            />
+                          </div>
+                          <div className="col-span-2 flex items-center justify-center font-semibold text-slate-800">
+                            {review.rating}
+                          </div>
+                          <div className="col-span-3 flex items-center justify-center text-xs text-slate-500 text-center px-2">
+                            {review.reason}
+                          </div>
                         </div>
-                        <div className="col-span-2 flex items-center justify-center font-semibold text-slate-800">
-                          {review.rating}
-                        </div>
-                        <div className="col-span-3 flex items-center justify-center text-xs text-slate-500 text-center px-2">
-                          {review.reason}
-                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-slate-400 text-sm">
+                        해당하는 리뷰가 없습니다.
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -211,7 +240,7 @@ export default function Result({
               </div>
 
               <p className="text-base leading-relaxed text-slate-700 bg-slate-50 rounded-2xl px-4 py-4 border border-slate-100">
-                {overallSummary}
+                {overallSummary || "리뷰 요약 정보가 없습니다."}
               </p>
             </div>
 

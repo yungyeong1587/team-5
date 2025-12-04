@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect } from "react";
 
 import Navbar from "./components/layout/Navbar";
@@ -13,7 +12,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NoticeDetail from "./pages/NoticeDetail";
 import { api } from "./utils/api";
-import { setAdminToken } from "./utils/api"; // ✅ 추가
+import { setAdminToken } from "./utils/api";
 
 export default function App() {
   // --------------------------------------------------
@@ -60,7 +59,7 @@ export default function App() {
   };
 
   // --------------------------------------------------
-  // 분석 버튼 (지금은 아직 목업 데이터 사용)
+  // 분석 버튼 (백엔드 API 연동)
   // --------------------------------------------------
   const handleAnalyze = async () => {
     if (!urlInput.trim()) {
@@ -103,13 +102,19 @@ export default function App() {
         const resultData = result.data;
 
         if (resultData.status === "completed") {
+          // ✅ [핵심 수정] 백엔드에서 온 리스트 데이터를 빠짐없이 챙겨야 합니다!
           setAnalysisResult({
             score: Math.round(resultData.confidence ?? 0),
             url: urlInput.trim(),
             verdict: resultData.verdict,
             confidence: resultData.confidence,
             reviewCount: resultData.review_count,
-            summary: "",
+            
+            // 👇 [필수 추가] 이 부분들이 빠져있어서 화면에 안 나왔던 겁니다!
+            overallSummary: resultData.summary || "요약 정보가 없습니다.",
+            top_reviews: resultData.top_reviews || [],
+            worst_reviews: resultData.worst_reviews || [],
+
             details: [
               {
                 label: "분석된 리뷰 수",
@@ -138,25 +143,24 @@ export default function App() {
   };
 
   // --------------------------------------------------
-  // 관리자 로그인 / 로그아웃 (이제 백엔드 연동된 AdminLogin과 연결)
+  // 관리자 로그인 / 로그아웃
   // --------------------------------------------------
   const handleAdminLoginSuccess = (info) => {
-    // info: { username, token, expiresAt } 를 AdminLogin에서 넘겨준다고 가정
     setAdminInfo(info);
-    setAdminToken(info.token); // localStorage에 저장 (utils/api)
+    setAdminToken(info.token); 
     navigateTo("adminDashboard");
     showToast("관리자 모드로 접속했습니다.", "success");
   };
 
   const handleLogout = () => {
     setAdminInfo(null);
-    setAdminToken(null); // 토큰 삭제
+    setAdminToken(null);
     navigateTo("home");
     showToast("로그아웃 되었습니다.", "info");
   };
 
   // --------------------------------------------------
-  // 데이터 다운로드 (그대로)
+  // 데이터 다운로드
   // --------------------------------------------------
   const handleDownload = () => {
     if (!dateRange.start || !dateRange.end) {
@@ -169,8 +173,6 @@ export default function App() {
     );
   };
 
-  // Inquiry.jsx에서 실제 API 호출을 하고,
-  // 여기서는 "성공했다" 신호만 받아서 토스트 + 홈 이동
   const handleInquirySubmitted = () => {
     showToast("문의가 성공적으로 접수되었습니다.", "success");
     navigateTo("home");
@@ -233,13 +235,13 @@ export default function App() {
       {currentPage === "inquiry" && (
         <Inquiry
           onBack={() => navigateTo("home")}
-          onSubmitted={handleInquirySubmitted} // ✅ Inquiry 새 버전에 맞게 변경
+          onSubmitted={handleInquirySubmitted}
         />
       )}
 
       {currentPage === "adminLogin" && (
         <AdminLogin
-          onLoginSuccess={handleAdminLoginSuccess} // ✅ 백엔드 연동 버전
+          onLoginSuccess={handleAdminLoginSuccess}
           onBack={() => navigateTo("home")}
         />
       )}

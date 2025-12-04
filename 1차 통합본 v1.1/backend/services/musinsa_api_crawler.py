@@ -236,7 +236,7 @@ class MusinsaCrawler:
                 # 리뷰 데이터 추출
                 data = response_data.get('data', {}) or {}
                 reviews = data.get('list', [])
-                total_count = data.get('totalCount') or data.get('totalCnt') or 0
+                total_count = data.get('total') or 0
                 
                 if not reviews:
                     logger.info(f"더 이상 리뷰 없음 (총 {len(all_reviews)}개 수집)")
@@ -350,7 +350,7 @@ class MusinsaCrawler:
 
 def crawl_musinsa_reviews(
     product_url: str,
-    max_reviews: int = 100,
+    max_reviews: int = 1000,
 ) -> Dict:
     """
     무신사 리뷰 크롤링 편의 함수
@@ -358,7 +358,7 @@ def crawl_musinsa_reviews(
     사용 예:
         result = crawl_musinsa_reviews(
             "https://www.musinsa.com/products/3242941",
-            max_reviews=100
+            max_reviews=1000
         )
     """
     crawler = MusinsaCrawler()
