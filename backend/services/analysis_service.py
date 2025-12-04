@@ -193,7 +193,7 @@ class AnalysisService:
             crawl_start = time.time()
             
             crawler = MusinsaCrawler()
-            crawl_result = crawler.crawl_reviews(product_url=review_url, max_reviews=100)
+            crawl_result = crawler.crawl_reviews(product_url=review_url, max_reviews=1000)
             
             crawl_time = time.time() - crawl_start
             

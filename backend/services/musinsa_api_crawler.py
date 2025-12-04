@@ -257,9 +257,9 @@ class MusinsaCrawler:
                     break
                 
                 # 모든 리뷰 수집 완료
-                if len(all_reviews) >= total_count:
-                    logger.info(f"모든 리뷰 수집 완료: {len(all_reviews)}개")
-                    break
+                #if len(all_reviews) >= total_count:
+                #   logger.info(f"모든 리뷰 수집 완료: {len(all_reviews)}개")
+                #   break
                 
                 # 다음 페이지
                 page += 1
@@ -350,7 +350,7 @@ class MusinsaCrawler:
 
 def crawl_musinsa_reviews(
     product_url: str,
-    max_reviews: int = 100,
+    max_reviews: int = 1000,
 ) -> Dict:
     """
     무신사 리뷰 크롤링 편의 함수
@@ -358,7 +358,7 @@ def crawl_musinsa_reviews(
     사용 예:
         result = crawl_musinsa_reviews(
             "https://www.musinsa.com/products/3242941",
-            max_reviews=100
+            max_reviews=1000
         )
     """
     crawler = MusinsaCrawler()

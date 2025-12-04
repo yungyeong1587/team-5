@@ -18,13 +18,13 @@ router = APIRouter(prefix="/crawl", tags=["크롤링"])
 class CrawlRequest(BaseModel):
     """크롤링 요청"""
     product_url: str = Field(..., description="무신사 상품 URL")
-    max_reviews: int = Field(100, description="최대 크롤링 리뷰 수")
+    max_reviews: int = Field(1000, description="최대 크롤링 리뷰 수")
     
     class Config:
         json_schema_extra = {
             "example": {
                 "product_url": "https://www.musinsa.com/products/3242941",
-                "max_reviews": 100
+                "max_reviews": 1000
             }
         }
 
@@ -58,14 +58,14 @@ async def crawl_reviews(
     POST /crawl
     {
       "product_url": "https://www.musinsa.com/products/3242941",
-      "max_reviews": 100
+      "max_reviews": 1000
     }
     
     # 크롤링 + DB 저장
     POST /crawl
     {
       "product_url": "https://www.musinsa.com/products/3242941",
-      "max_reviews": 100
+      "max_reviews": 1000
     }
     ```
     """
