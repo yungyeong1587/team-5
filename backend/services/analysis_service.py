@@ -135,8 +135,12 @@ class AnalysisService:
             try:
                 summarizer = GeminiSummarizer()
                 gemini_summary = summarizer.summarize_reviews(raw_reviews, max_reviews=50)
+
+                avg_rating = summarizer.get_avg_rating(raw_reviews)
+
             except Exception as e:
                 logger.error(f"Gemini 요약 실패: {e}")
+                avg_rating = 0
 
             # 5. DB 저장
             AnalysisService.update_analysis_status(
@@ -146,7 +150,8 @@ class AnalysisService:
                 review_count=len(raw_reviews),
                 top_reviews=top_reviews,      
                 worst_reviews=worst_reviews,
-                summary=gemini_summary
+                summary=gemini_summary,
+                avg_rating=avg_rating
             )
             logger.info(f"[Analysis {analysis_id}] ✅ 분석 완료")
 

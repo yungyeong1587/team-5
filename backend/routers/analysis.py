@@ -67,6 +67,7 @@ class AnalysisDetailResponse(BaseModel):
     score: int | None = None           # ✅ 프론트엔드 원형 그래프용 점수
     review_count: int | None = None
     error_message: str | None = None
+    avg_rating: float | None = None
     
     # ✅ [핵심 수정] 리스트 데이터가 통과할 수 있도록 문을 열어줍니다.
     top_reviews: List[Any] | None = []
@@ -141,6 +142,7 @@ async def get_analysis_detail(
             score=int(data['confidence']) if data['confidence'] else 0,
             review_count=data['review_count'],
             error_message=data['error_message'],
+            avg_rating=data.get('avg_rating', 0),
             
             # ✅ 변환된 데이터를 여기에 담아 보냅니다.
             top_reviews=data.get('top_reviews', []),
