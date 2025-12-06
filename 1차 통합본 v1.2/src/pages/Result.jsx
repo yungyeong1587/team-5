@@ -748,6 +748,13 @@ function ReviewListCard({ title, reviews, variant }) {
                             {reliability}%
                           </span>
                         </div>
+                        <div className="text-xs text-slate-500">
+                          <StatusBadge
+                            label={review.analysis_label}
+                            colorClass={review.color_class}
+                            score={review.reliability_score}
+                          />
+                        </div>
                       </div>
                     </div>
 
