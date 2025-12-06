@@ -356,7 +356,7 @@ class AnalysisService:
 
             # 평점 기준 분리
             high_rated = [r for r in enriched_reviews if r.get('rating', 0) >= 4]
-            low_rated = [r for r in enriched_reviews if r.get('rating', 0) <= 2]
+            low_rated = [r for r in enriched_reviews if r.get('rating', 0) <= 3]
             
             # 랜덤 섞기
             random.shuffle(high_rated)

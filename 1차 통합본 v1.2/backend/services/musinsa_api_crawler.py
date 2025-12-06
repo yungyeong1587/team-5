@@ -243,10 +243,14 @@ class MusinsaCrawler:
                 # 리뷰 파싱
                 for review_data in reviews:
                     parsed = self.parse_review(review_data)
+
+                    # ⭐ 별점 1~5만 허용 (0점 제외)
+                    if parsed['rating'] is None or parsed['rating'] < 1:
+                        continue
                     if parsed['text']:  # 텍스트가 있는 리뷰만
                         all_reviews.append(parsed)
                 
-                logger.debug(f"페이지 {page}: {len(reviews)}개 (누적: {len(all_reviews)}/{total_count})")
+                logger.info(f"페이지 {page}: {len(reviews)}개 (누적: {len(all_reviews)}/{total_count})")
                 
                 # 최대 리뷰 수 체크
                 if max_reviews and len(all_reviews) >= max_reviews:
