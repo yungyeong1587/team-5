@@ -26,6 +26,7 @@ class Analysis(Base):
     # 추가 정보
     error_message = Column(String(500), nullable=True)
     review_count = Column(Integer, nullable=True)
+    avg_rating = Column(Float, nullable=True)
     
     # 시간 정보
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -69,7 +70,8 @@ class Analysis(Base):
             'top_reviews': self.top_reviews,
             'worst_reviews': self.worst_reviews,
             'summary': self.summary,
-            
+            'avg_rating': self.avg_rating,
+
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

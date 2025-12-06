@@ -1,6 +1,6 @@
 // src/pages/Home.jsx
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, LayoutDashboard } from 'lucide-react';
 import ReviewCheckIcon from '../components/icons/ReviewCheckIcon';
 
 export default function Home({
@@ -8,9 +8,22 @@ export default function Home({
   setUrlInput,
   isAnalyzing,
   onAnalyze,
+  onGoToAdmin,   // ✅ 오타 수정: onGoToADmin → onGoToAdmin
 }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 pt- bg-gradient-to-br from-blue-200 via-white to-blue-200">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 pt-16 bg-gradient-to-br from-blue-200 via-white to-blue-200">
+      <div className="w-full max-w-4xl flex justify-end mb-4">
+        {onGoToAdmin && (
+          <button
+            onClick={onGoToAdmin}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs md:text-sm text-slate-600 hover:bg-slate-800 hover:text-white transition-colors"
+          >
+            <LayoutDashboard size={16} />
+            관리자 대시보드로 돌아가기
+          </button>
+        )}
+      </div>
+
       <div className="w-full max-w-4xl flex flex-col items-center animate-fade-in-up">
         {/* 로고 + 타이틀 영역 */}
         <div className="flex flex-col items-center mb-10">

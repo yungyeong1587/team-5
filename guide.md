@@ -8,7 +8,9 @@
 
 3. project/에서 node 모듈 및 lucide-react 패키지를 설치해주세요.
 
-4. 실행 방법
+4. project/backend/에서 pip install -r requirements.txt를 통해 필요한 라이브러리들을 설치해주세요.
+
+5. 실행 방법
 
    4.1. 프론트엔드
 

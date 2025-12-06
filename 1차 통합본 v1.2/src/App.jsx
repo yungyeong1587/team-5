@@ -18,8 +18,8 @@ export default function App() {
   // --------------------------------------------------
   // 페이지 & 관리자 상태
   // --------------------------------------------------
-  const [currentPage, setCurrentPage] = useState("home"); // home, result, notice, inquiry, adminLogin, adminDashboard
-  const [adminInfo, setAdminInfo] = useState(null); // { username, token, expiresAt ... }
+  const [currentPage, setCurrentPage] = useState("home"); 
+  const [adminInfo, setAdminInfo] = useState(null); 
   const isAdmin = !!adminInfo;
 
   // --------------------------------------------------
@@ -38,7 +38,7 @@ export default function App() {
     type: "info",
   });
   const [selectedNoticeId, setSelectedNoticeId] = useState(null);
-  // 공통 Toast 함수
+
   const showToast = (message, type = "info") => {
     setToast({ show: true, message, type });
   };
@@ -71,7 +71,6 @@ export default function App() {
     showToast("분석을 시작합니다...", "info");
 
     try {
-      // 분석 요청
       const res = await api.post("/users/analyses", {
         review_url: urlInput.trim(),
       });
@@ -102,28 +101,9 @@ export default function App() {
         const resultData = result.data;
 
         if (resultData.status === "completed") {
-          // ✅ [핵심 수정] 백엔드에서 온 리스트 데이터를 빠짐없이 챙겨야 합니다!
-          setAnalysisResult({
-            score: Math.round(resultData.confidence ?? 0),
-            url: urlInput.trim(),
-            verdict: resultData.verdict,
-            confidence: resultData.confidence,
-            reviewCount: resultData.review_count,
-            
-            // 👇 [필수 추가] 이 부분들이 빠져있어서 화면에 안 나왔던 겁니다!
-            overallSummary: resultData.summary || "요약 정보가 없습니다.",
-            top_reviews: resultData.top_reviews || [],
-            worst_reviews: resultData.worst_reviews || [],
-
-            details: [
-              {
-                label: "분석된 리뷰 수",
-                value: `${resultData.review_count}개`,
-              },
-              { label: "신뢰도", value: `${resultData.confidence}%` },
-              { label: "판정 결과", value: resultData.verdict },
-            ],
-          });
+          // ✅ [수정됨] 백엔드 데이터를 가공 없이 그대로 저장합니다.
+          // Result.jsx가 원본 키 이름(review_count 등)을 기대하기 때문입니다.
+          setAnalysisResult(resultData);
 
           setIsAnalyzing(false);
           showToast("분석이 완료되었습니다!", "success");
@@ -206,12 +186,11 @@ export default function App() {
         />
       )}
 
+      {/* ✅ [수정됨] Result 컴포넌트에 props를 올바르게 전달합니다 */}
       {currentPage === "result" && (
         <Result
-          analysisResult={analysisResult}
-          urlInput={urlInput}
-          onNewAnalyze={() => navigateTo("home")}
-          onOpenInfoModal={() => setShowInfoModal(true)}
+          result={analysisResult}          // analysisResult -> result 이름 변경
+          onBack={() => navigateTo("home")} // onNewAnalyze -> onBack 이름 변경
         />
       )}
 

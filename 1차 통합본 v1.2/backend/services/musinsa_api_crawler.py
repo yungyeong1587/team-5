@@ -220,8 +220,6 @@ class MusinsaCrawler:
         all_reviews = []
         page = 0
         
-        logger.info(f"[MusinsaCrawler] 상품 {goods_no} 크롤링 시작")
-        
         while True:
             try:
                 # API 호출
@@ -320,9 +318,6 @@ class MusinsaCrawler:
                 max_reviews=max_reviews,
                 page_size=100
             )
-
-            for idx, rv in enumerate(raw_reviews[:3]):
-                logger.info(f"[Sample Review {idx+1}] {rv.get('text')[:50]!r}")
 
             logger.info(f"[MusinsaCrawler] 상품 {product_id} 크롤링 결과: raw_reviews={len(raw_reviews)}")
             # 3. 리뷰 필터링
