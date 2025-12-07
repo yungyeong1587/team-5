@@ -120,7 +120,6 @@ coverage/
 .cache/
 .eslintcache
 
-*.safetensors
-*.pt
-*.pth
-*/checkpoint-*/
+# Ignore model files
+ai_models/*.pkl
+ai_models/*.safetensors
