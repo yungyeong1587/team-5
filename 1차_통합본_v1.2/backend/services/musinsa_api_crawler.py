@@ -14,6 +14,9 @@ import json
 import requests
 from typing import List, Dict, Optional
 import logging
+import pandas as pd
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
 
@@ -365,3 +368,59 @@ def crawl_musinsa_reviews(
         product_url=product_url,
         max_reviews=max_reviews,
     )
+
+
+def crawl_and_save_csv(product_url: str, max_reviews: int = 1000):
+    """
+    ➤ 무신사 리뷰를 크롤링한 뒤 CSV 파일로 저장하는 함수
+    ➤ retrain_rf_model.py에서 그대로 학습 가능함
+    
+    CSV 저장 형식:
+        review_text,rating
+        "만족합니다",5
+        "별로에요",1
+    """
+
+    crawler = MusinsaCrawler()
+    result = crawler.crawl_reviews(product_url, max_reviews=max_reviews)
+
+    if not result["success"]:
+        print("❌ 크롤링 실패:", result["message"])
+        return None
+
+    reviews = result["reviews"]
+    product_id = result["product_id"]
+
+    if not reviews:
+        print("❌ 리뷰가 없습니다.")
+        return None
+
+    # CSV 저장용 리스트 변환
+    rows = []
+    for r in reviews:
+        text = (r.get("text") or "").strip()
+        rating = r.get("rating")
+
+        if not text or rating is None:
+            continue
+
+        rows.append({
+            "review_text": text,
+            "rating": rating
+        })
+
+    df = pd.DataFrame(rows)
+
+    # 저장 폴더 생성
+    save_dir = Path("../dataset")
+    save_dir.mkdir(exist_ok=True)
+
+    save_path = save_dir / f"reviews_{product_id}.csv"
+    df.to_csv(save_path, index=False, encoding="utf-8-sig")
+
+    print("\n====================================================")
+    print(f"📄 CSV 저장 완료: {save_path.resolve()}")
+    print(f"총 리뷰 개수: {len(df)}개")
+    print("====================================================\n")
+
+    return save_path

@@ -11,15 +11,35 @@ import Inquiry from "./pages/Inquiry";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NoticeDetail from "./pages/NoticeDetail";
-import { api } from "./utils/api";
-import { setAdminToken } from "./utils/api";
+import { api, setAdminToken, getAdminToken } from "./utils/api";
 
 export default function App() {
   // --------------------------------------------------
   // 페이지 & 관리자 상태
   // --------------------------------------------------
-  const [currentPage, setCurrentPage] = useState("home");
-  const [adminInfo, setAdminInfo] = useState(null);
+  const [currentPage, setCurrentPage] = useState(() => {
+    // adminInfo가 있으면 저장된 페이지 복원
+    const token = getAdminToken();
+    if (token) {
+      const savedPage = localStorage.getItem("currentPage");
+      if (savedPage === "adminDashboard") {
+        return "adminDashboard";
+      }
+    }
+    return "home";
+  });
+  const [adminInfo, setAdminInfo] = useState(() => {
+    const token = getAdminToken();
+    const savedUsername = localStorage.getItem("adminUsername");
+
+    if (token && savedUsername) {
+      return {
+        username: savedUsername,
+        token: token,
+      };
+    }
+    return null;
+  });
   const isAdmin = !!adminInfo;
 
   // --------------------------------------------------
@@ -128,15 +148,34 @@ export default function App() {
   const handleAdminLoginSuccess = (info) => {
     setAdminInfo(info);
     setAdminToken(info.token);
+
+    localStorage.setItem("adminUsername", info.username);
+    localStorage.setItem("currentPage", "adminDashboard");
+
     navigateTo("adminDashboard");
     showToast("관리자 모드로 접속했습니다.", "success");
   };
 
-  const handleLogout = () => {
-    setAdminInfo(null);
-    setAdminToken(null);
-    navigateTo("home");
-    showToast("로그아웃 되었습니다.", "info");
+  const handleLogout = async () => {
+    try {
+      // ✅ 백엔드 logout API 호출
+      if (adminInfo) {
+        await api.post("/admin/logout", {
+          request_user: adminInfo.username,
+        });
+      }
+    } catch (err) {
+      console.error("로그아웃 API 오류:", err);
+    } finally {
+      // ✅ 무조건 로컬 상태 및 토큰 삭제
+      setAdminInfo(null);
+      setAdminToken(null);
+      localStorage.removeItem("adminUsername");
+      localStorage.removeItem("currentPage");
+
+      navigateTo("home");
+      showToast("로그아웃 되었습니다.", "info");
+    }
   };
 
   // --------------------------------------------------

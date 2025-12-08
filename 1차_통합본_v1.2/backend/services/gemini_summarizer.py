@@ -51,29 +51,30 @@ class GeminiSummarizer:
             요약 텍스트
         """
         
-        # API가 설정되지 않은 경우 기본 요약 반환
-        if not self.model:
-            return self._generate_basic_summary(reviews)
+        # # API가 설정되지 않은 경우 기본 요약 반환
+        # if not self.model:
+        #     return self._generate_basic_summary(reviews)
         
-        try:
-            # 1. 리뷰 샘플링 (너무 많으면 토큰 초과)
-            sampled_reviews = self._sample_reviews(reviews, max_reviews)
+        # try:
+        #     # 1. 리뷰 샘플링 (너무 많으면 토큰 초과)
+        #     sampled_reviews = self._sample_reviews(reviews, max_reviews)
             
-            # 2. 프롬프트 생성
-            prompt = self._create_summary_prompt(sampled_reviews, language)
+        #     # 2. 프롬프트 생성
+        #     prompt = self._create_summary_prompt(sampled_reviews, language)
             
-            # 3. Gemini API 호출
-            logger.info(f"🤖 Gemini API 요약 시작 (리뷰 {len(sampled_reviews)}개)")
-            response = self.model.generate_content(prompt)
-            summary = response.text.strip()
+        #     # 3. Gemini API 호출
+        #     logger.info(f"🤖 Gemini API 요약 시작 (리뷰 {len(sampled_reviews)}개)")
+        #     response = self.model.generate_content(prompt)
+        #     summary = response.text.strip()
             
-            logger.info(f"✅ Gemini 요약 완료 ({len(summary)}자)")
-            return summary
+        #     logger.info(f"✅ Gemini 요약 완료 ({len(summary)}자)")
+        #     return summary
             
-        except Exception as e:
-            logger.error(f"❌ Gemini 요약 실패: {e}")
-            # 실패 시 기본 요약 반환
-            return self._generate_basic_summary(reviews)
+        # except Exception as e:
+        #     logger.error(f"❌ Gemini 요약 실패: {e}")
+        #     # 실패 시 기본 요약 반환
+        #     return self._generate_basic_summary(reviews)
+        return ""
     
     def _sample_reviews(self, reviews: List[Dict], max_count: int) -> List[Dict]:
         """

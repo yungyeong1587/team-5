@@ -81,9 +81,7 @@ export default function AdminLogin({ onLoginSuccess, onBack }) {
             />
           </div>
 
-          {errorMsg && (
-            <p className="text-sm text-red-500 mt-2">{errorMsg}</p>
-          )}
+          {errorMsg && <p className="text-sm text-red-500 mt-2">{errorMsg}</p>}
 
           <button
             type="submit"
